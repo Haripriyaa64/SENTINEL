@@ -1,0 +1,161 @@
+ssh ubuntu@10.151.103.231 ->> SSH terminal
+
+Step 1 — Install the prerequisite
+sudo apt install -y software-properties-common
+
+Step 2 — Add the Suricata repository
+sudo add-apt-repository ppa:oisf/suricata-stable
+
+Step 3 — Update the package lists
+sudo apt update
+
+Step 4 — Install Suricata
+sudo apt install -y suricata
+
+Step 5 — Verify the installation
+suricata --build-info
+
+sudo systemctl status suricata --no-pager
+
+
+$ sudo suricata -T -c /etc/suricata/suricata.yaml -v
+Notice: suricata: This is Suricata version 8.0.7 RELEASE running in SYSTEM mode
+Info: cpu: CPUs/cores online: 2
+Info: suricata: Running suricata under test mode
+Info: suricata: Setting engine mode to IDS mode by default
+Info: exception-policy: master exception-policy set to: auto
+Info: suricata: Preparing unexpected signal handling
+Info: logopenfile: fast output device (regular) initialized: fast.log
+Info: logopenfile: eve-log output device (regular) initialized: eve.json
+Info: logopenfile: stats output device (regular) initialized: stats.log
+Info: detect: 2 rule files processed. 53273 rules successfully loaded, 0 rules failed, 0 rules skipped
+Info: threshold-config: Threshold config parsed: 0 rule(s) found
+Info: detect: 53278 signatures processed. 1214 are IP-only rules, 4530 are inspecting packet payload, 47294 inspect application layer, 110 are decoder event only
+Warning: detect: rule 9000002: SYN-only to port(s) 22:22 w/o direction specified, disabling for toclient direction
+Notice: suricata: Configuration provided was successfully loaded. Exiting.
+
+
+sudo systemctl enable suricata
+sudo systemctl restart suricata
+sleep 60
+sudo systemctl status suricata --no-pager | head -12
+sudo tail -n 10 /var/log/suricata/suricata.log
+
+
+ sudo systemctl status suricata --no-pager | head -12
+● suricata.service - Suricata IDS/IPS/NSM/FW daemon
+     Loaded: loaded (/lib/systemd/system/suricata.service; enabled; vendor preset: enabled)
+     Active: active (running) since Mon 2026-10-26 17:29:34 UTC; 1min 37s ago
+       Docs: man:suricata(8)
+             man:suricatasc(8)
+             https://suricata.io/documentation/
+    Process: 1812 ExecStartPre=/bin/rm -f /run/suricata.pid (code=exited, status=0/SUCCESS)
+   Main PID: 1813 (Suricata-Main)
+      Tasks: 7 (limit: 2215)
+     Memory: 430.5M
+        CPU: 43.375s
+     CGroup: /system.slice/suricata.service
+ubuntu@idssensor:~$ sudo tail -n 10 /var/log/suricata/suricata.log
+[1813 - Suricata-Main] 2026-10-26 17:30:13 Info: detect: 2 rule files processed. 53273 rules successfully loaded, 0 rules failed, 0 rules skipped
+[1813 - Suricata-Main] 2026-10-26 17:30:13 Info: threshold-config: Threshold config parsed: 0 rule(s) found
+[1813 - Suricata-Main] 2026-10-26 17:30:13 Info: detect: 53278 signatures processed. 1214 are IP-only rules, 4530 are inspecting packet payload, 47294 inspect application layer, 110 are decoder event only
+[1813 - Suricata-Main] 2026-10-26 17:30:13 Warning: detect: rule 9000002: SYN-only to port(s) 22:22 w/o direction specified, disabling for toclient direction
+[1813 - Suricata-Main] 2026-10-26 17:30:16 Info: unix-manager: unix socket '/var/run/suricata/suricata-command.socket'
+[1813 - Suricata-Main] 2026-10-26 17:30:16 Error: unix-manager: failed to create socket directory /var/run/suricata/: Permission denied
+[1813 - Suricata-Main] 2026-10-26 17:30:16 Warning: unix-manager: Unable to create unix command socket
+[1813 - Suricata-Main] 2026-10-26 17:30:16 Info: runmodes: enp0s3: creating 2 threads
+[1815 - W#01-enp0s3] 2026-10-26 17:30:16 Info: ioctl: enp0s3: MTU 1500
+[1813 - Suricata-Main] 2026-10-26 17:30:16 Notice: threads: Threads created -> W: 2 FM: 1 FR: 1   Engine started.
+
+
+ sudo tail -f /var/log/suricata/eve.json | jq -c 'select(.event_type=="alert") | {time:.timestamp, src:.src_ip, sig:.alert.signature}'
+{"time":"2026-10-26T17:34:59.794800+0000","src":"10.151.103.60","sig":"LAB ICMP ping"}
+{"time":"2026-10-26T17:35:00.799579+0000","src":"10.151.103.60","sig":"LAB ICMP ping"}
+{"time":"2026-10-26T17:35:01.802913+0000","src":"10.151.103.60","sig":"LAB ICMP ping"}
+{"time":"2026-10-26T17:35:02.807355+0000","src":"10.151.103.60","sig":"LAB ICMP ping"}
+
+
+sudo apt install -y apache2 jq
+sudo adduser ravi
+systemctl is-active ssh apache2
+
+ravi -> passwd : sunshine1 , room no -> 200
+
+FROM KALI LINUX -> ATTACK
+ip -4 -o addr show | awk '{print $2, $4}'
+lo 127.0.0.1/8
+eth0 10.151.103.71/24
+                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ ping -c 4 10.151.103.231
+PING 10.151.103.231 (10.151.103.231) 56(84) bytes of data.
+64 bytes from 10.151.103.231: icmp_seq=1 ttl=64 time=7.63 ms
+64 bytes from 10.151.103.231: icmp_seq=2 ttl=64 time=0.814 ms
+64 bytes from 10.151.103.231: icmp_seq=3 ttl=64 time=0.732 ms
+64 bytes from 10.151.103.231: icmp_seq=4 ttl=64 time=3.02 ms
+
+--- 10.151.103.231 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3074ms
+rtt min/avg/max/mdev = 0.732/3.049/7.631/2.799 ms
+                                                                                             
+
+                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ date; nmap -sS -T4 -p 1-1000 10.151.103.231
+Mon Oct 26 01:58:29 PM EDT 2026
+Starting Nmap 7.95 ( https://nmap.org ) at 2026-10-26 13:58 EDT
+Nmap scan report for 10.151.103.231
+Host is up (0.0013s latency).
+Not shown: 998 closed tcp ports (reset)
+PORT   STATE SERVICE
+22/tcp open  ssh
+80/tcp open  http
+MAC Address: 08:00:27:8E:DA:50 (PCS Systemtechnik/Oracle VirtualBox virtual NIC)
+
+Nmap done: 1 IP address (1 host up) scanned in 0.55 seconds
+                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ date; hydra -l ravi -P ~/small.txt -t 4 ssh://10.151.103.231
+Mon Oct 26 01:58:53 PM EDT 2026
+Hydra v9.6 (c) 2023 by van Hauser/THC & David Maciejak - Please do not use in military or secret service organizations, or for illegal purposes (this is non-binding, these *** ignore laws and ethics anyway).
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2026-10-26 13:58:53
+[DATA] max 4 tasks per 1 server, overall 4 tasks, 2000 login tries (l:1/p:2000), ~500 tries per task
+[DATA] attacking ssh://10.151.103.231:22/
+date; sudo hping3 -S -p 80 --faster -c 3000 10.151.103.231
+^CThe session file ./hydra.restore was written. Type "hydra -R" to resume session.
+                                                                                             
+┌──(kali㉿kali)-[~]
+└─$ date; sudo hping3 -S -p 80 --faster -c 3000 10.151.103.231
+Mon Oct 26 01:59:25 PM EDT 2026
+HPING 10.151.103.231 (eth0 10.151.103.231): S set, 40 headers + 0 data bytes
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=0 win=64240 rtt=21.3 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=1 win=64240 rtt=20.9 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=2 win=64240 rtt=20.5 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=3 win=64240 rtt=20.2 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=4 win=64240 rtt=20.1 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=5 win=64240 rtt=18.8 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=6 win=64240 rtt=18.2 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=7 win=64240 rtt=18.1 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=8 win=64240 rtt=17.8 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=9 win=64240 rtt=17.6 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=10 win=64240 rtt=17.3 ms
+len=46 ip=10.151.103.231 ttl=64 DF id=0 sport=80 flags=SA seq=11 win=64240 rtt=16.9 ms
+
+
+
+FROM UBUNTU SERVER -> SURICATA LOGS (VICTIM)
+
+sudo tail -f /var/log/suricata/eve.json | jq -c 'select(.event_type=="alert") | {time:.timestamp, src:.src_ip, sig:.alert.signature}'
+{"time":"2026-10-26T17:58:31.351504+0000","src":"10.151.103.71","sig":"LAB Port scan (SYN burst)"}
+{"time":"2026-10-26T17:58:31.351504+0000","src":"10.151.103.71","sig":"LAB SYN flood (DoS)"}
+{"time":"2026-10-26T17:58:55.304459+0000","src":"10.151.103.71","sig":"LAB SSH brute force attempt"}
+{"time":"2026-10-26T17:59:26.306832+0000","src":"10.151.103.71","sig":"LAB Port scan (SYN burst)"}
+{"time":"2026-10-26T17:59:26.348711+0000","src":"10.151.103.71","sig":"LAB SYN flood (DoS)"}
+^C
+ubuntu@idssensor:~$ sudo cp /var/log/suricata/eve.json ~/eve_backup_$(date +%F).json
+ls -lh ~/eve_backup_*.json
+-rw-r--r-- 1 root root 5.7M Oct 26 17:59 /home/ubuntu/eve_backup_2026-10-26.json
+ubuntu@idssensor:~$
+
+

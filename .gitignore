@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+*.db
+*.sqlite*
+ml/data/*
+!ml/data/.gitkeep
+sensors/spool/
+*.jsonl
